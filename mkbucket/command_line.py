@@ -77,7 +77,7 @@ class BucketCreator:
         if user_name is None:
             user_name = USER_NAME_FORMAT.format(bucket_name=bucket.name)
         user = self.iam.User(user_name).create()
-        print('Created IAM user {user_name}.'.format(user_name=user_name))
+        print('Created IAM user "{user_name}".'.format(user_name=user_name))
         return user
 
     def create_bucket_user_policy(self, bucket, user, policy_name=None):
