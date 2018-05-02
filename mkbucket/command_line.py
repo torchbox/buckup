@@ -10,10 +10,11 @@ POLICY_NAME_FORMAT = '{bucket_name}-s3-owner-policy'
 
 
 class BucketCreator:
-    def __init__(self, profile_name=None):
-        self.s3 = boto3.resource('s3')
+    def __init__(self, profile_name=None, region=None):
+        self.s3 = boto3.resource('s3', region_name=region)
         self.iam = boto3.resource('iam')
-        self.user_session = boto3.session.Session(profile_name=profile_name)
+        self.user_session = boto3.session.Session(profile_name=profile_name,
+                                                  region_name=region)
 
     def get_bucket(self, name, dont_check=False):
         bucket = self.s3.Bucket(name)
@@ -134,6 +135,8 @@ def mkbucket():
     parser.add_argument('--enable-versioning', action='store_true',
                         help='Enable file versioning. Please consider '
                              'using on production only.')
+    parser.add_argument('--profile', type=str,
+                        help='AWS CLI profile you want to use')
     parser.add_argument('--policy-name', type=str,
                         help='Will use "{}" if not '
                              'specified'.format(POLICY_NAME_FORMAT))
@@ -147,7 +150,7 @@ def mkbucket():
              '--cors-origin http://domain2.com".'
     )
     args = parser.parse_args()
-    creator = BucketCreator()
+    creator = BucketCreator(region=args.region)
     bucket = creator.create_bucket(args.bucket_name, region=args.region)
     if args.enable_versioning:
         creator.enable_versioning(bucket)
