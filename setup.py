@@ -14,6 +14,6 @@ setup(
         'console_scripts': ['mkbucket=mkbucket.command_line:main'],
     },
     install_requires=[
-        'boto3==1.7.11',
+        'boto3>=1.7,<1.8',
     ],
 )
