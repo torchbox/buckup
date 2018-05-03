@@ -83,7 +83,7 @@ class BucketCreator:
             region=region,
         ))
         print()
-        print('\tAWS_S3_BUCKET_NAME', name)
+        print('\tAWS_STORAGE_BUCKET_NAME', name)
         print()
         bucket.wait_until_exists()
         return bucket
