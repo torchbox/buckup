@@ -33,7 +33,10 @@ class BucketCreator:
         alias_msg = ''
         if account_alias:
             alias_msg = ' You account alias is "{}".'.format(account_alias)
-        print('Signed in as {user_name}.{alias_info}'.format(user_name=current_user.arn, alias_info=alias_msg))
+        print('Signed in as {user_name}.{alias_info}'.format(
+            user_name=current_user.arn,
+            alias_info=alias_msg
+        ))
         region = self.session.region_name
         input_msg = 'Do you want to create bucket "{name}" in region ' \
                     '"{region}"? (Ctrl+C to cancel)\nType your bucket name ' \
@@ -173,7 +176,7 @@ class BucketCreator:
         print('Enabled versioning for "{}".'.format(bucket.name))
 
 
-def mkbucket():
+def buckup():
     parser = argparse.ArgumentParser(description='Create S3 bucket with user.')
     parser.add_argument('bucket_name', type=str, metavar='bucket-name',
                         help='Name of the bucket you want to create.')
@@ -215,7 +218,7 @@ def mkbucket():
 
 def main():
     try:
-        mkbucket()
+        buckup()
     except KeyboardInterrupt:
         print()
         print('Aborted by user.')
