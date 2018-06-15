@@ -1,8 +1,8 @@
 buckup
 ========
 
-Create S3 bucket, policy and user with one command. Ready to use on your
-project.
+Create S3 bucket, policy and user with one command. After creation it is ready
+to use on your project.
 
 Features
 --------
@@ -10,74 +10,28 @@ Features
 -  Create bucket
 -  Enable versioning
 -  Set CORS
--  Create user and generate access key pair.
--  Give that user permissions to the created bucket.
+-  Create user and generate access key pair and give it permissions to the
+   bucket.
+-  Set policy to enable
+   `s3:GetObject <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html>`_
+   permission on every object in your bucket to the public.
 
 Installation
 ------------
 
-Install with ``setup.py`` or just execute with ``run.py`` without
-installing.
+.. code:: sh
+
+   pip install buckup
+
 
 Usage
 -----
 
-To create a bucket with all the defaults, please just use.
+To create a bucket just type ``buckup`` in the command line.
 
-.. code:: sh
+If you want to use other AWS CLI profile use ``--profile`` flag. You can always
+pass your credentials using ``AWS_ACCESS_KEY_ID`` and ``AWS_ACCESS_SECRET_KEY``
+environment variables or other methods described in the
+`boto3 documentation <https://boto3.readthedocs.io/en/latest/guide/configuration.html>`_.
 
-   buckup [bucket-name]
-
-E.g.
-
-.. code:: sh
-
-   buckup torchbox-production
-
-CORS
-~~~~
-
-You can specify `CORS`_ origin so a web browser won’t block loading
-static assets.
-
-.. code:: sh
-
-   buckup torchbox-production \
-       --cors-origin https://torchbox.com \
-       --cors-origin http://torchbox.com
-
-Versioning
-~~~~~~~~~~
-
-You can also enable `versioning`_. Please consider switching it only for
-the production site since it incurs additional costs.
-
-.. code:: sh
-
-   buckup torchbox-production --enable-versioning
-
-Custom region
-~~~~~~~~~~~~~
-
-By default the script will use region from your session. You can specify
-a custom one with the ``--region`` flag.
-
-.. code:: sh
-
-   buckup torchbox-production --region eu-west-2
-
-Custom IAM user or policy name
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For whatever reason you may want to use custom policy or user name.
-
-.. code:: sh
-
-   buckup torchbox-production --policy-name custom-policy-name --user-name custom-user-name
-
-Default ones are ``{bucket_name}-s3-owner`` and
-``{bucket_name}-s3-owner-policy``.
-
-.. _CORS: https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html
-.. _versioning: https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html
-
+If you want to specify another region use ``--region`` flag.
