@@ -23,6 +23,21 @@ Installation
 
    pip install buckup
 
+Development build
+~~~~~~~~~~~~~~~~~
+
+You can easily install buckup inside a virtual environment and work on it
+there, e.g.
+
+.. code:: sh
+
+   git clone git@github.com:torchbox/buckup.git
+   cd buckup
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -e .
+   buckup
+
 
 Usage
 -----
