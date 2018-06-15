@@ -55,7 +55,8 @@ class BuckupCommandLineInterface(CommandLineInterface):
         print('Signed in as {user_name}.'.format(
             user_name=current_user.arn,
         ))
-        print('You account alias is "{}".'.format(account_alias))
+        if account_alias:
+            print('You account alias is "{}".'.format(account_alias))
         region = self.data['region']
         print('Use "--profile" flag to use different profile.')
         print('Region used is {region}. '
@@ -115,8 +116,8 @@ class BuckupCommandLineInterface(CommandLineInterface):
         public_get_object = self.ask_yes_no(
             'Do you want to enable public s3:getObject on the whole bucket?\n'
             'That will enable everyone with the link to access the object. '
-            'This is recommended\napproach if you do not want to set'
-            'indidual objects as public in your\napplication.'
+            'This is recommended\napproach if you do not want to set '
+            'individual objects as public in your\napplication.'
         )
         self.data['public_get_object'] = public_get_object
 
