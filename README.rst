@@ -1,3 +1,6 @@
+.. image:: logo.png
+   :alt: Buckup logo
+
 buckup
 ========
 
