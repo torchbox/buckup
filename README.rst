@@ -7,17 +7,24 @@ buckup
 Create S3 bucket, policy and user with one command. After creation it is ready
 to use on your project.
 
+
 Features
 --------
 
 -  Create bucket
--  Enable versioning
--  Set CORS
+-  Enable `versioning <https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html>`_
+-  Set `CORS <https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html>`_
 -  Create user and generate access key pair and give it permissions to the
    bucket.
 -  Set policy to enable
    `s3:GetObject <https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html>`_
    permission on every object in your bucket to the public.
+
+Dependencies
+------------
+
+* Python 3
+* `boto3 <https://pypi.org/project/boto3/>`_
 
 Installation
 ------------
@@ -45,11 +52,21 @@ there, e.g.
 Usage
 -----
 
-To create a bucket just type ``buckup`` in the command line.
+1. First you need an AWS account. You need programmatic access key to use it
+   with buckup.
 
-If you want to use other AWS CLI profile use ``--profile`` flag. You can always
-pass your credentials using ``AWS_ACCESS_KEY_ID`` and ``AWS_ACCESS_SECRET_KEY``
-environment variables or other methods described in the
-`boto3 documentation <https://boto3.readthedocs.io/en/latest/guide/configuration.html>`_.
+   * If you have `AWS CLI <https://aws.amazon.com/cli/>`_ installed,
+     you can save your credentials with
+     `aws configure <https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html>`_; or
+   * you can set  ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY``
+     environment variable containing your credentials.
 
-If you want to specify another region use ``--region`` flag.
+   Read
+   `boto3 documentation <https://boto3.readthedocs.io/en/latest/guide/configuration.html>`_
+   for more detail.
+2. After you set that up, you can type ``buckup`` and that should open the
+   prompt.
+   1. If you want to specify other than default region, please use `--region`
+         flag with ``buckup``, e.g. ``buckup --region eu-west-2``.
+3. After you answer all the questions you should obtain your bucket details
+   that are ready to use in your application.
