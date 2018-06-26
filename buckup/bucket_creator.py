@@ -160,6 +160,10 @@ class BucketCreator:
             # Bucket does not exist, proceed with creation.
             if e.response['Error']['Code'] == '404':
                 return
+            # No access to the bucket means that it already exists but we
+            # cannot run head request on it.
+            elif e.response['Error']['Code'] == '403':
+                raise BucketNameAlreadyInUse
             else:
                 raise e
         except ParamValidationError as e:
