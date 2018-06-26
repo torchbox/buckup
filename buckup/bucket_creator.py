@@ -135,18 +135,32 @@ class BucketCreator:
                 "Version": "2012-10-17",
                 "Statement": [
                     {
-                        "Sid": "AllowFullBucketAccess",
+                        "Sid": "AllowApplicationBucketAccess",
                         "Effect": "Allow",
-                        "Action": ["s3:*"],
+                        "Action": [
+                            "s3:ListBucket",
+                            "s3:GetBucketLocation",
+                            "s3:ListBucketMultipartUploads",
+                            "s3:ListBucketVersions",
+                        ],
                         "Resource": [
                             "arn:aws:s3:::{bucket_name}".format(
                                 bucket_name=bucket.name
                             ),
+                        ],
+                    },
+                    {
+                        "Sid": "AllowApplicationObjectAccess",
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:*",
+                        ],
+                        "Resource": [
                             "arn:aws:s3:::{bucket_name}/*".format(
                                 bucket_name=bucket.name
                             ),
-                        ]
-                    }
+                        ],
+                    },
                 ]
             }),
         )
