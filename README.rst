@@ -66,9 +66,12 @@ Usage
    for more detail.
 2. After you set that up, you can type ``buckup`` and that should open the
    prompt.
-   
+
    1. If you want to specify other than the default region, please use ``--region``
       flag with ``buckup``, e.g. ``buckup --region eu-west-2``.
-      
+
 3. After you answer all the questions you should obtain your bucket details
    that are ready to use in your application.
+
+.. image:: screenshot.png
+   :alt: Buckup screenshot
