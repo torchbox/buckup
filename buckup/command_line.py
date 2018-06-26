@@ -21,16 +21,32 @@ class BuckupCommandLineInterface(CommandLineInterface):
         self.data['region'] = self.bucket_creator.session.region_name
 
     def print_welcome_information(self):
-        print(
-            ' _                _\n'
-            '| |              | |\n'
-            '| |__  _   _  ___| | ___   _ _ __\n'
-            '| \'_ \| | | |/ __| |/ / | | | \'_ \\\n'
-            '| |_) | |_| | (__|   <| |_| | |_) |\n'
-            '|_.__/ \__,_|\___|_|\_\\__,_| .__/\n'
-            '                            | |\n'
-            '                            |_|\n'
-        )
+        print("""
+                               ,#L  #M
+                             ,#KM,#KM
+                  ,#KKKKKKKKKKKKKKKKKKKKKN
+                 #KM,g#KK" ,#K` #KKKKKM**"
+                     ?*\##KKM' ]KKKK^
+                        '"` ,y#KKKK
+       ,#KKKKKKKKKKKKKKKKKKKKKKKKK
+      #KKKKKKKKKKKKKKKKKKKKKKKKKKN
+      BKKKKKKKKKKKKKKKKKKKKKKKKKKL
+      BKKKKKKKKKKKKKKKKKKKKKKKKKK
+      BKKKKKKKKKKKKKKKKKKKKKKKKM
+      BKKKKKKKKK""""""$KD"TKKP
+      BKKM ]KKM       1KK  KKH
+      9KN  KKN         KKH ]KN
+       YKNp 1KN        ]KN !KKL
+        "KKm "KKp       KKL 1KN
+       _                _
+      | |              | |
+      | |__  _   _  ___| | ___   _ _ __
+      | '_ \| | | |/ __| |/ / | | | '_ \\
+      | |_) | |_| | (__|   <| |_| | |_) |
+      |_.__/ \__,_|\___|_|\_\__,_| .__/
+                                   | |
+                                   |_|
+        """)
         print('Queries: http://github.com/torchbox/buckup\n')
         print('We are going to create an S3 bucket with a user that is ready '
               'to use. In the end\nyou will have a bucket name, access key '
@@ -41,16 +57,16 @@ class BuckupCommandLineInterface(CommandLineInterface):
             current_user = self.bucket_creator.get_current_user()
             account_alias = self.bucket_creator.get_current_account_alias()
         except CredentialsNotFound:
-            print('Credentials not set. Please make sure you set your AWS '
-                  'credentials.')
-            print('You can use "aws configure" command or set them in '
+            print('Credentials not set. Please make sure your AWS credentials '
+                  'are accessible by boto3.')
+            print('You can use "aws configure" command or set them using '
                   'environment variables \n"AWS_ACCESS_KEY_ID" or '
                   '"AWS_SECRET_ACCESS_KEY".')
-            print('If you already set AWS CLI credentials for another '
-                  'profile, you can use\n"--profile" flag.')
+            print('If you have already set AWS CLI credentials for another '
+                  'profile, you can use\n"--profile" flag to access them.')
             print('Read more: https://boto3.readthedocs.io/en/latest/guide/'
                   'configuration.html')
-            print('Aborted due to error.')
+            print('Aborted due to an error.')
             sys.exit(1)
         print('Signed in as {user_name}.'.format(
             user_name=current_user.arn,
@@ -58,10 +74,14 @@ class BuckupCommandLineInterface(CommandLineInterface):
         if account_alias:
             print('You account alias is "{}".'.format(account_alias))
         region = self.data['region']
+        if not region:
+            print('You need to specify region with "--region".')
+            sys.exit(1)
         print('Use "--profile" flag to use different profile.')
         print('Region used is {region}. '
               'Use "--region" to specify different '
               'region.'.format(region=region))
+        print('(Ctrl+c to cancel)')
 
     def ask_bucket_name(self):
         bucket_name = self.ask('Bucket name?')

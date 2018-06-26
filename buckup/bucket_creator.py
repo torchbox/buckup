@@ -38,16 +38,16 @@ class BucketCreator:
         I.e. Anyone with the link to the file can open it without permission.
         """
         policy = json.dumps({
-            "Version":"2012-10-17",
-            "Statement":[{
-                "Sid":"PublicGetObject",
-                "Effect":"Allow",
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Sid": "PublicGetObject",
+                "Effect": "Allow",
                 "Principal": "*",
-                "Action":["s3:GetObject"],
+                "Action": ["s3:GetObject"],
                 "Resource":["arn:aws:s3:::{bucket_name}/*".format(
                     bucket_name=bucket.name
-                )]
-            }]
+                )],
+            }],
         })
         bucket.Policy().put(Policy=policy)
         print('Allowed public to perform s3:GetObject on any object inside '
@@ -155,7 +155,7 @@ class BucketCreator:
 
     def validate_bucket_name(self, bucket_name):
         try:
-            response = self.s3.meta.client.head_bucket(Bucket=bucket_name)
+            self.s3.meta.client.head_bucket(Bucket=bucket_name)
         except ClientError as e:
             # Bucket does not exist, proceed with creation.
             if e.response['Error']['Code'] == '404':
