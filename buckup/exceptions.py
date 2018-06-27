@@ -16,3 +16,11 @@ class InvalidUserName(ValueError):
 
 class CredentialsNotFound(RuntimeError):
     pass
+
+
+class CannotListAccountAliases(RuntimeError):
+    pass
+
+
+class CannotGetCurrentUser(RuntimeError):
+    pass

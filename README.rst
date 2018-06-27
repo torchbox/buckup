@@ -64,6 +64,19 @@ Usage
    Read
    `boto3 documentation <https://boto3.readthedocs.io/en/latest/guide/configuration.html>`_
    for more detail.
+
+   1. If you want to restrict your access only to essential credentials to use
+      buckup, please set them to:
+
+      * ``iam:ListAccountAliases`` (not required to use)
+      * ``s3:PutBucketPolicy``
+      * ``s3:CreateBucket``
+      * ``iam:GetUser``
+      * ``iam:CreateUser``
+      * ``s3:PutBucketCORS``
+      * ``s3:PutBucketVersioning``
+      * ``iam:CreateAccessKey``
+
 2. After you set that up, you can type ``buckup`` and that should open the
    prompt.
 

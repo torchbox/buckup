@@ -6,8 +6,8 @@ from botocore.exceptions import (
 )
 
 from .exceptions import (
-    BucketNameAlreadyInUse, CredentialsNotFound, InvalidBucketName,
-    InvalidUserName, UserNameTaken
+    BucketNameAlreadyInUse, CannotGetCurrentUser, CannotListAccountAliases,
+    CredentialsNotFound, InvalidBucketName, InvalidUserName, UserNameTaken
 )
 
 
@@ -197,13 +197,24 @@ class BucketCreator:
             raise UserNameTaken
 
     def get_current_user(self):
-        return self.iam.CurrentUser()
+        try:
+            user = self.iam.CurrentUser()
+            user.load()
+            return user
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'AccessDenied':
+                raise CannotGetCurrentUser from e
+            raise e
 
     def get_current_account_alias(self):
         try:
             response = self.iam.meta.client.list_account_aliases()
         except NoCredentialsError as e:
             raise CredentialsNotFound from e
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'AccessDenied':
+                raise CannotListAccountAliases from e
+            raise e
         try:
             return response['AccountAliases'][0]
         except IndexError:
