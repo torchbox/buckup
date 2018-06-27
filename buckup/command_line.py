@@ -3,8 +3,8 @@ import sys
 
 from .bucket_creator import BucketCreator
 from .exceptions import (
-    BucketNameAlreadyInUse, CredentialsNotFound, InvalidBucketName,
-    InvalidUserName, UserNameTaken,
+    BucketNameAlreadyInUse, CannotGetCurrentUser, CannotListAccountAliases,
+    CredentialsNotFound, InvalidBucketName, InvalidUserName, UserNameTaken
 )
 
 from .utils import CommandLineInterface
@@ -55,7 +55,6 @@ class BuckupCommandLineInterface(CommandLineInterface):
     def print_account_information(self):
         try:
             current_user = self.bucket_creator.get_current_user()
-            account_alias = self.bucket_creator.get_current_account_alias()
         except CredentialsNotFound:
             print('Credentials not set. Please make sure your AWS credentials '
                   'are accessible by boto3.')
@@ -68,18 +67,28 @@ class BuckupCommandLineInterface(CommandLineInterface):
                   'configuration.html')
             print('Aborted due to an error.')
             sys.exit(1)
-        print('Signed in as {user_name}.'.format(
-            user_name=current_user.arn,
-        ))
-        if account_alias:
-            print('You account alias is "{}".'.format(account_alias))
+        except CannotGetCurrentUser:
+            # non-essential information
+            pass
+        else:
+            print('Signed in as {user_name}.'.format(
+                user_name=current_user.arn,
+            ))
+        try:
+            account_alias = self.bucket_creator.get_current_account_alias()
+        except CannotListAccountAliases:
+            # non-essential information
+            pass
+        else:
+            if account_alias:
+                print('You account alias is "{}".'.format(account_alias))
         region = self.data['region']
         if not region:
             print('You need to specify region with "--region".')
             sys.exit(1)
-        print('Use "--profile" flag to use different profile.')
+        print('Use "--profile" flag to use a different boto3 profile.')
         print('Region used is {region}. '
-              'Use "--region" to specify different '
+              'Use "--region" to specify a different '
               'region.'.format(region=region))
         print('(Ctrl+c to cancel)')
 
