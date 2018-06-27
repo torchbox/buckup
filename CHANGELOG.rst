@@ -1,5 +1,5 @@
-Unreleased
-=========
+0.1a2 - 27th June 2018
+======================
 
 * Fix no credentials error being not handled.
 * Require Python version of at least 3.4.
