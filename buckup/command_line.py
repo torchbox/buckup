@@ -171,8 +171,10 @@ class BuckupCommandLineInterface(CommandLineInterface):
 
     def create_bucket(self):
         self.bucket_creator.commit(self.data)
-        print('\nBucket created. Please keep the above credentials secret as '
-              'they grant owner\naccess to your bucket and files within it.')
+        self.print_separator()
+        print('Bucket created. Please keep the above credentials secret as '
+              'they grant owner\naccess to your bucket and to the files '
+              'within it.')
 
     def print_separator(self):
         print()
