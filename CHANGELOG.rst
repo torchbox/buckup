@@ -1,3 +1,8 @@
+Unreleased
+=========
+
+* Fix no credentials error being not handled.
+
 0.1a1 - 27th June 2018
 ======================
 
