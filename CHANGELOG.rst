@@ -2,6 +2,7 @@ Unreleased
 =========
 
 * Fix no credentials error being not handled.
+* Require Python version of at least 3.4.
 
 0.1a1 - 27th June 2018
 ======================
