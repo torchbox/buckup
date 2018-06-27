@@ -231,6 +231,8 @@ class BucketCreator:
             user = self.iam.CurrentUser()
             user.load()
             return user
+        except NoCredentialsError as e:
+            raise CredentialsNotFound from e
         except ClientError as e:
             if e.response['Error']['Code'] == 'AccessDenied':
                 raise CannotGetCurrentUser from e
