@@ -24,19 +24,34 @@ class BucketCreator:
     def commit(self, data):
         bucket = self.create_bucket(data['bucket_name'], data['region'])
         self.create_user(bucket, data['user_name'])
-        if data.get('public_get_object'):
-            self.set_public_get_object_policy(bucket)
+        if data.get('public_get_object_paths'):
+            self.set_public_get_object_policy_on_paths(
+                bucket,
+                data['public_get_object_paths']
+            )
         if data.get('cors_origins'):
             self.set_cors(bucket, data['cors_origins'])
         if data.get('enable_versioning'):
             self.enable_versioning(bucket)
 
-    def set_public_get_object_policy(self, bucket):
+    def set_public_get_object_policy_on_paths(self, bucket, paths):
         """
         Allow everyone to s3:GetObject on any file in the bucket.
 
         I.e. Anyone with the link to the file can open it without permission.
         """
+        def format_path(path):
+            if path.startswith('/'):
+                path = path[1:]
+            return "arn:aws:s3:::{bucket_name}/{path}".format(
+                bucket_name=bucket.name,
+                path=path,
+            )
+
+        resources = []
+        for path in paths:
+            resources.append(format_path(path))
+
         policy = json.dumps({
             "Version": "2012-10-17",
             "Statement": [{
@@ -44,14 +59,12 @@ class BucketCreator:
                 "Effect": "Allow",
                 "Principal": "*",
                 "Action": ["s3:GetObject"],
-                "Resource":["arn:aws:s3:::{bucket_name}/*".format(
-                    bucket_name=bucket.name
-                )],
+                "Resource": resources,
             }],
         })
         bucket.Policy().put(Policy=policy)
         print('Allowed public to perform s3:GetObject on any object inside '
-              'the bucket.')
+              'the bucket on resources:\n\t{}'.format(resources))
 
     def create_bucket(self, name, region):
         """

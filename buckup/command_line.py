@@ -133,13 +133,30 @@ class BuckupCommandLineInterface(CommandLineInterface):
         return answer
 
     def ask_public_get_object(self):
-        public_get_object = self.ask_yes_no(
-            'Do you want to enable public s3:getObject on the whole bucket?\n'
-            'That will enable everyone with the link to access the object. '
-            'This is recommended\napproach if you do not want to set '
-            'individual objects as public in your\napplication.'
+        question = (
+            'Do you want to specify paths that you want to be publicly \n'
+            'accessible with a link? This will give the "s3:getObject"\n'
+            'permission to the public on the list of paths you set.'
         )
-        self.data['public_get_object'] = public_get_object
+        if not self.ask_yes_no(question):
+            return
+        paths = None
+        while True:
+            paths = self.ask(
+                'What paths do you want to allow the public to perform '
+                's3:getObject on?\n'
+                'Please provide comma separated list of paths, '
+                'e.g. "documents/*,images/*" or\nuse "*" to indicate the '
+                'whole bucket.'
+            ).strip().split(',')
+            paths = frozenset([path.strip() for path in paths if path.strip()])
+            if '*' in paths and len(paths) > 1:
+                print('If you specify a wildcard, you should not specify '
+                      'other paths.\n')
+                continue
+            elif paths:
+                break
+        self.data['public_get_object_paths'] = paths
 
     def ask_cors(self):
         cors_origins = self.ask(
