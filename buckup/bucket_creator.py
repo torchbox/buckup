@@ -1,4 +1,5 @@
 import json
+import time
 
 import boto3
 from botocore.exceptions import (
@@ -23,48 +24,103 @@ class BucketCreator:
 
     def commit(self, data):
         bucket = self.create_bucket(data['bucket_name'], data['region'])
-        self.create_user(bucket, data['user_name'])
-        if data.get('public_get_object_paths'):
-            self.set_public_get_object_policy_on_paths(
-                bucket,
-                data['public_get_object_paths']
-            )
+        user = self.create_user(bucket, data['user_name'])
+        self.set_bucket_policy(
+            bucket,
+            user,
+            public_get_object_paths=data.get('public_get_object_paths')
+        )
         if data.get('cors_origins'):
             self.set_cors(bucket, data['cors_origins'])
         if data.get('enable_versioning'):
             self.enable_versioning(bucket)
 
-    def set_public_get_object_policy_on_paths(self, bucket, paths):
+    def get_bucket_policy_statement_for_get_object(self, bucket,
+                                                   public_get_object_paths):
         """
-        Allow everyone to s3:GetObject on any file in the bucket.
-
-        I.e. Anyone with the link to the file can open it without permission.
+        Create policy statement to enable the public to perform s3:getObject
+        on specified paths.
         """
-        def format_path(path):
-            if path.startswith('/'):
-                path = path[1:]
-            return "arn:aws:s3:::{bucket_name}/{path}".format(
-                bucket_name=bucket.name,
-                path=path,
-            )
-
-        resources = []
-        for path in paths:
-            resources.append(format_path(path))
-
-        policy = json.dumps({
-            "Version": "2012-10-17",
-            "Statement": [{
+        if public_get_object_paths:
+            def format_path(path):
+                if path.startswith('/'):
+                    path = path[1:]
+                return "arn:aws:s3:::{bucket_name}/{path}".format(
+                    bucket_name=bucket.name,
+                    path=path,
+                )
+            paths_resources = []
+            for path in public_get_object_paths:
+                paths_resources.append(format_path(path))
+            return {
                 "Sid": "PublicGetObject",
                 "Effect": "Allow",
                 "Principal": "*",
                 "Action": ["s3:GetObject"],
-                "Resource": resources,
-            }],
+                "Resource": paths_resources,
+            }
+
+    def get_bucket_policy_statements_for_user_access(self, bucket, user):
+        # Create policy statement giving the created user access to
+        # non-destructive actions on the bucket.
+        yield {
+            "Sid": "AllowUserManageBucket",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": user.arn
+            },
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketLocation",
+                "s3:ListBucketMultipartUploads",
+                "s3:ListBucketVersions"
+            ],
+            "Resource": "arn:aws:s3:::{bucket_name}".format(
+                bucket_name=bucket.name
+            )
+        }
+        # Create policy statement giving the created user full access over the
+        # objects.
+        yield {
+            "Sid": "AllowUserManageBucketObjects",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": user.arn
+            },
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::{bucket_name}/*".format(
+                bucket_name=bucket.name
+            )
+        }
+
+    def set_bucket_policy(self, bucket, user, public_get_object_paths=None):
+        policy_statement = []
+        if public_get_object_paths:
+            policy_statement.append(
+                self.get_bucket_policy_statement_for_get_object(
+                    bucket, public_get_object_paths
+                )
+            )
+        policy_statement.extend(list(
+            self.get_bucket_policy_statements_for_user_access(bucket, user)
+        ))
+        policy = json.dumps({
+            "Version": "2012-10-17",
+            "Statement": policy_statement,
         })
-        bucket.Policy().put(Policy=policy)
-        print('Allowed public to perform s3:GetObject on any object inside '
-              'the bucket on resources:\n\t{}'.format(resources))
+        while True:
+            try:
+                bucket.Policy().put(Policy=policy)
+            except ClientError as e:
+                if e.response['Error']['Code'] == 'MalformedPolicy':
+                    print('Waiting for the user to be available to be '
+                          'attached to the policy (wait 5s).')
+                    time.sleep(5)
+                    continue
+                raise e
+            else:
+                break
+        print('Bucket policy set.')
 
     def create_bucket(self, name, region):
         """
@@ -100,18 +156,18 @@ class BucketCreator:
 
     def create_user(self, bucket, user_name):
         user = self.iam.User(user_name).create()
-        print('Created IAM user "{user_name}".'.format(
-            user_name=user_name
-        ))
         self.iam.meta.client.get_waiter('user_exists').wait(UserName=user_name)
-        self.attach_bucket_user_policy(bucket, user)
+        user.load()
+        print('Created IAM user "{user_name}".'.format(
+            user_name=user.arn
+        ))
         self.create_user_access_key_pair(user)
         return user
 
     def create_user_access_key_pair(self, user):
         access_key_pair = user.create_access_key_pair()
-        print('Created access key pair for user "{user_name}".'.format(
-            user_name=user.user_name,
+        print('Created access key pair for user "{user}".'.format(
+            user=user.arn,
         ))
         print()
         print('\tAWS_ACCESS_KEY_ID', access_key_pair.access_key_id)
@@ -139,32 +195,6 @@ class BucketCreator:
         msg = "Set CORS for domains {domains} to bucket \"{bucket_name}\"."
         print(msg.format(domains=', '.join(origins), bucket_name=bucket.name))
         bucket.Cors().put(CORSConfiguration=config)
-
-    def attach_bucket_user_policy(self, bucket, user):
-        policy_name = POLICY_NAME_FORMAT.format(bucket_name=bucket.name)
-        user.create_policy(
-            PolicyName=policy_name,
-            PolicyDocument=json.dumps({
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Sid": "AllowFullBucketAccess",
-                        "Effect": "Allow",
-                        "Action": ["s3:*"],
-                        "Resource": [
-                            "arn:aws:s3:::{bucket_name}".format(
-                                bucket_name=bucket.name
-                            ),
-                            "arn:aws:s3:::{bucket_name}/*".format(
-                                bucket_name=bucket.name
-                            ),
-                        ]
-                    }
-                ]
-            }),
-        )
-        msg = 'Attached policy "{policy_name}" to user "{user_name}".'
-        print(msg.format(policy_name=policy_name, user_name=user.user_name))
 
     def validate_bucket_name(self, bucket_name):
         try:
