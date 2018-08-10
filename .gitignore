@@ -1,5 +1,9 @@
 venv/
+pkg/
 *.pyc
 build/
 dist/
 *.egg-info
+*.tar.xz
+*.tar.gz
+src/
