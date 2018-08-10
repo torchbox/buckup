@@ -29,9 +29,24 @@ Dependencies
 Installation
 ------------
 
+PyPI (pip)
+~~~~~~~~~~
+
 .. code:: sh
 
    pip install buckup
+
+Arch User Repository
+~~~~~~~~~~~~~~~~~~~~
+
+Buckup `can be found on AUR <https://aur.archlinux.org/packages/buckup>`_.
+
+.. code:: sh
+
+   cd /tmp
+   git clone https://aur.archlinux.org/buckup.git
+   cd buckup
+   makepkg -si
 
 Development build
 ~~~~~~~~~~~~~~~~~
