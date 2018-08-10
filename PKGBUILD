@@ -7,7 +7,6 @@ url="https://github.com/torchbox/buckup"
 license=('BSD')
 arch=('any')
 depends=('python-boto3')
-optdepends=('python-patchwork: Common deployment/sysadmin operations')
 source=("https://github.com/torchbox/buckup/archive/v${pkgver}.tar.gz")
 md5sums=('9d1d479c17914d4ee851779a1ff392f8')
 
