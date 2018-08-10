@@ -1,3 +1,4 @@
+# Maintainer: Tomasz Knapik <me@tmkn.org>
 pkgname=buckup
 pkgver=0.1a2
 pkgrel=1
@@ -22,4 +23,3 @@ package() {
   install -Dm644 README.rst "${pkgdir}"/usr/share/doc/${pkgname}/README.rst
   install -Dm644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
 }
-
