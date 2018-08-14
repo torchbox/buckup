@@ -34,7 +34,7 @@ PyPI (pip)
 
 .. code:: sh
 
-   pip install buckup
+   python3 -m pip install buckup
 
 Arch User Repository
 ~~~~~~~~~~~~~~~~~~~~
