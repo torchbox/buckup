@@ -1,3 +1,8 @@
+UNDER DEVELOPMENT
+=================
+
+* Do not restrict boto3 version in the requirements.
+
 0.1a2 - 27th June 2018
 ======================
 
