@@ -1,5 +1,5 @@
-UNDER DEVELOPMENT
-=================
+0.1a3 - 19th March 2019
+=======================
 
 * Do not restrict boto3 version in the requirements.
 
