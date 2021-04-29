@@ -1,4 +1,4 @@
-.. image:: logo.png
+.. image:: https://raw.githubusercontent.com/torchbox/buckup/master/logo.png
    :alt: Buckup logo
 
 buckup
@@ -101,5 +101,5 @@ Usage
 3. After you answer all the questions you should obtain your bucket details
    that are ready to use in your application.
 
-.. image:: screenshot.png
-   :alt: Buckup screenshot
+.. image:: https://raw.githubusercontent.com/torchbox/buckup/master/screenshot.png
+   :alt: Screenshot of buckup’s command line output, showing the creation of a test bucket
