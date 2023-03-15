@@ -20,6 +20,7 @@ class BucketCreator:
         self.session = boto3.session.Session(profile_name=profile_name,
                                              region_name=region_name)
         self.s3 = self.session.resource('s3')
+        self.s3_client = self.session.client('s3')
         self.iam = self.session.resource('iam')
 
     def commit(self, data):
@@ -95,7 +96,9 @@ class BucketCreator:
 
     def set_bucket_policy(self, bucket, user, public_get_object_paths=None):
         policy_statement = []
-        if public_get_object_paths:
+        public_access = bool(public_get_object_paths)
+
+        if public_access:
             policy_statement.append(
                 self.get_bucket_policy_statement_for_get_object(
                     bucket, public_get_object_paths
@@ -121,6 +124,20 @@ class BucketCreator:
             else:
                 break
         print('Bucket policy set.')
+
+        if public_access:
+            # NB: This API doesn't exist on a `Bucket`
+            self.s3_client.put_public_access_block(
+                Bucket=bucket.name,
+                # Allow policies to provide access to objects, but not ACLs
+                PublicAccessBlockConfiguration={
+                    "BlockPublicAcls": True,
+                    "IgnorePublicAcls": True,
+                    "BlockPublicPolicy": False,
+                    "RestrictPublicBuckets": False
+                }
+            )
+            print('Enabled public access to the bucket.')
 
     def create_bucket(self, name, region):
         """
