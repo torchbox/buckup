@@ -48,6 +48,16 @@ Buckup `can be found on AUR <https://aur.archlinux.org/packages/buckup>`_.
    cd buckup
    makepkg -si
 
+Homebrew
+~~~~~~~~
+
+Buckup can be installed from Torchbox's `Homebrew tap <https://github.com/torchbox/homebrew-tap>`_.
+
+.. code:: sh
+
+   brew tap torchbox/tap
+   brew install buckup
+
 Development build
 ~~~~~~~~~~~~~~~~~
 
