@@ -130,15 +130,15 @@ class BucketCreator:
         self.s3_client.put_public_access_block(
             Bucket=bucket.name,
             PublicAccessBlockConfiguration={
-                # Prevent files being marked as public using ACLs
                 "BlockPublicAcls": not allow_public_acls,
                 "IgnorePublicAcls": not allow_public_acls,
-                # Allow policies to allow public access to objects
                 "BlockPublicPolicy": not public_access,
                 "RestrictPublicBuckets": not public_access
             }
         )
-        print('Configured public access to bucket.')
+
+        if public_access or allow_public_acls:
+            print('Configured public access to bucket.')
 
     def create_bucket(self, name, region):
         """
