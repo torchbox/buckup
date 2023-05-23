@@ -170,7 +170,7 @@ class BuckupCommandLineInterface(CommandLineInterface):
     def ask_public_acl(self):
         self.data['allow_public_acls'] = self.ask_yes_no(
             'Do you want to allow public ACLs on objects?\n'
-            'This allows individual files to be public rather than paths.'
+            'This allows access to individual objects to be controlled separately from the bucket policy.'
         )
 
     def ask_cors(self):
