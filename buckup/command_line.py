@@ -167,6 +167,12 @@ class BuckupCommandLineInterface(CommandLineInterface):
                 break
         self.data['public_get_object_paths'] = paths
 
+    def ask_public_acl(self):
+        self.data['allow_public_acls'] = self.ask_yes_no(
+            'Do you want to allow public ACLs on objects?\n'
+            'This allows access to individual objects to be controlled separately from the bucket policy.'
+        )
+
     def ask_cors(self):
         cors_origins = self.ask(
             'Specify a comma separated list of origins whitelisted for the '
@@ -199,6 +205,7 @@ class BuckupCommandLineInterface(CommandLineInterface):
         self.ask_user_name()
         self.ask_enable_versioning()
         self.ask_public_get_object()
+        self.ask_public_acl()
         self.ask_cors()
         self.print_separator()
         if self.ask_summary():
