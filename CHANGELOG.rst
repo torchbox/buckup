@@ -1,3 +1,8 @@
+0.1a4 - 29th March 2023
+=======================
+
+* Set public access block for buckets with public files
+
 0.1a3 - 19th March 2019
 =======================
 
