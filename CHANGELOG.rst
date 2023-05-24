@@ -1,4 +1,10 @@
-0.1a4 - 29th March 2023
+0.1a6 - 24th May 2023
+=======================
+
+* Allow control of public ACLs
+* Add a ``--version`` command-line parameter
+
+0.1a5 - 29th March 2023
 =======================
 
 * Set public access block for buckets with public files
