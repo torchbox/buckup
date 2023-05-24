@@ -8,6 +8,7 @@ from .exceptions import (
 )
 
 from .utils import CommandLineInterface
+from . import __version__
 
 
 USER_NAME_FORMAT = '{bucket_name}-s3-owner'
@@ -216,6 +217,12 @@ class BuckupCommandLineInterface(CommandLineInterface):
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Create S3 bucket with user ready to use on your website.'
+    )
+    parser.add_argument(
+        "--version",
+        help="Show version",
+        action="version",
+        version=__version__
     )
     parser.add_argument('--profile', type=str,
                         help='AWS CLI profile you want to use')
