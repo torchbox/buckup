@@ -99,6 +99,19 @@ class BucketCreator:
         policy_statement = []
         public_access = bool(public_get_object_paths)
 
+        # NB: This API doesn't exist on a `Bucket`
+        self.s3_client.put_public_access_block(
+            Bucket=bucket.name,
+            PublicAccessBlockConfiguration={
+                "BlockPublicAcls": not allow_public_acls,
+                "IgnorePublicAcls": not allow_public_acls,
+                "BlockPublicPolicy": not public_access,
+                "RestrictPublicBuckets": not public_access
+            }
+        )
+        if public_access or allow_public_acls:
+            print('Configured public access to bucket.')
+
         if public_access:
             policy_statement.append(
                 self.get_bucket_policy_statement_for_get_object(
@@ -125,20 +138,6 @@ class BucketCreator:
             else:
                 break
         print('Bucket policy set.')
-
-        # NB: This API doesn't exist on a `Bucket`
-        self.s3_client.put_public_access_block(
-            Bucket=bucket.name,
-            PublicAccessBlockConfiguration={
-                "BlockPublicAcls": not allow_public_acls,
-                "IgnorePublicAcls": not allow_public_acls,
-                "BlockPublicPolicy": not public_access,
-                "RestrictPublicBuckets": not public_access
-            }
-        )
-
-        if public_access or allow_public_acls:
-            print('Configured public access to bucket.')
 
     def create_bucket(self, name, region):
         """
