@@ -1,3 +1,8 @@
+0.1a7 - 12th July 2023
+=======================
+
+* Ensure public bucket policies are allowed before trying to write one
+
 0.1a6 - 24th May 2023
 =======================
 
