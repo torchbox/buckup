@@ -14,6 +14,19 @@ from .exceptions import (
 
 POLICY_NAME_FORMAT = '{bucket_name}-owner-policy'
 
+REQUIRE_HTTPS_CONDITION = {
+    "Bool": {
+        # Require HTTPS
+        "aws:SecureTransport": "true"
+    },
+    "NumericGreaterThanEquals": {
+        # Require TLS >= 1.2
+        "s3:TlsVersion": [
+            "1.2"
+        ]
+    }
+}
+
 
 class BucketCreator:
     def __init__(self, profile_name=None, region_name=None):
@@ -30,6 +43,7 @@ class BucketCreator:
             bucket,
             user,
             allow_public_acls=data["allow_public_acls"],
+            require_https=data["require_https"],
             public_get_object_paths=data.get('public_get_object_paths')
         )
         if data.get('cors_origins'):
@@ -37,8 +51,7 @@ class BucketCreator:
         if data.get('enable_versioning'):
             self.enable_versioning(bucket)
 
-    def get_bucket_policy_statement_for_get_object(self, bucket,
-                                                   public_get_object_paths):
+    def get_bucket_policy_statement_for_get_object(self, bucket, public_get_object_paths, require_https):
         """
         Create policy statement to enable the public to perform s3:getObject
         on specified paths.
@@ -54,13 +67,17 @@ class BucketCreator:
             paths_resources = []
             for path in public_get_object_paths:
                 paths_resources.append(format_path(path))
-            return {
+            policy = {
                 "Sid": "PublicGetObject",
                 "Effect": "Allow",
                 "Principal": "*",
                 "Action": ["s3:GetObject"],
                 "Resource": paths_resources,
             }
+
+            if require_https:
+                policy["Condition"] = REQUIRE_HTTPS_CONDITION
+            return policy
 
     def get_bucket_policy_statements_for_user_access(self, bucket, user):
         # Create policy statement giving the created user access to
@@ -79,7 +96,9 @@ class BucketCreator:
             ],
             "Resource": "arn:aws:s3:::{bucket_name}".format(
                 bucket_name=bucket.name
-            )
+            ),
+            # Require HTTPS for API
+            "Condition": REQUIRE_HTTPS_CONDITION
         }
         # Create policy statement giving the created user full access over the
         # objects.
@@ -92,10 +111,12 @@ class BucketCreator:
             "Action": "s3:*",
             "Resource": "arn:aws:s3:::{bucket_name}/*".format(
                 bucket_name=bucket.name
-            )
+            ),
+            # Require HTTPS for API
+            "Condition": REQUIRE_HTTPS_CONDITION
         }
 
-    def set_bucket_policy(self, bucket, user, allow_public_acls, public_get_object_paths=None):
+    def set_bucket_policy(self, bucket, user, allow_public_acls, require_https, public_get_object_paths=None):
         policy_statement = []
         public_access = bool(public_get_object_paths)
 
@@ -115,7 +136,7 @@ class BucketCreator:
         if public_access:
             policy_statement.append(
                 self.get_bucket_policy_statement_for_get_object(
-                    bucket, public_get_object_paths
+                    bucket, public_get_object_paths, require_https
                 )
             )
         policy_statement.extend(list(
