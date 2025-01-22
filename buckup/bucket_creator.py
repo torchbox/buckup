@@ -43,7 +43,6 @@ class BucketCreator:
             bucket,
             user,
             allow_public_acls=data["allow_public_acls"],
-            require_https=data["require_https"],
             public_get_object_paths=data.get('public_get_object_paths')
         )
         if data.get('cors_origins'):
@@ -51,7 +50,7 @@ class BucketCreator:
         if data.get('enable_versioning'):
             self.enable_versioning(bucket)
 
-    def get_bucket_policy_statement_for_get_object(self, bucket, public_get_object_paths, require_https):
+    def get_bucket_policy_statement_for_get_object(self, bucket, public_get_object_paths):
         """
         Create policy statement to enable the public to perform s3:getObject
         on specified paths.
@@ -67,17 +66,15 @@ class BucketCreator:
             paths_resources = []
             for path in public_get_object_paths:
                 paths_resources.append(format_path(path))
-            policy = {
+            return {
                 "Sid": "PublicGetObject",
                 "Effect": "Allow",
                 "Principal": "*",
                 "Action": ["s3:GetObject"],
                 "Resource": paths_resources,
+                # Require HTTPS for public requests
+                "Condition": REQUIRE_HTTPS_CONDITION
             }
-
-            if require_https:
-                policy["Condition"] = REQUIRE_HTTPS_CONDITION
-            return policy
 
     def get_bucket_policy_statements_for_user_access(self, bucket, user):
         # Create policy statement giving the created user access to
@@ -116,7 +113,7 @@ class BucketCreator:
             "Condition": REQUIRE_HTTPS_CONDITION
         }
 
-    def set_bucket_policy(self, bucket, user, allow_public_acls, require_https, public_get_object_paths=None):
+    def set_bucket_policy(self, bucket, user, allow_public_acls, public_get_object_paths=None):
         policy_statement = []
         public_access = bool(public_get_object_paths)
 
@@ -136,7 +133,7 @@ class BucketCreator:
         if public_access:
             policy_statement.append(
                 self.get_bucket_policy_statement_for_get_object(
-                    bucket, public_get_object_paths, require_https
+                    bucket, public_get_object_paths
                 )
             )
         policy_statement.extend(list(

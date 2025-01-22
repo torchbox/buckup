@@ -185,12 +185,6 @@ class BuckupCommandLineInterface(CommandLineInterface):
             if origin:
                 self.data['cors_origins'].append(origin)
 
-    def ask_https(self):
-        self.data['require_https'] = self.ask_yes_no(
-            'Do you want to only allow access over HTTPS?\n'
-            'WARNING: This will not redirect! Unsecured HTTP requests will fail.',
-        )
-
     def create_bucket(self):
         self.bucket_creator.commit(self.data)
         self.print_separator()
@@ -212,7 +206,6 @@ class BuckupCommandLineInterface(CommandLineInterface):
         self.ask_user_name()
         self.ask_enable_versioning()
         self.ask_public_get_object()
-        self.ask_https()
         self.ask_public_acl()
         self.ask_cors()
         self.print_separator()
