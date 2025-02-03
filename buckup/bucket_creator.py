@@ -14,6 +14,19 @@ from .exceptions import (
 
 POLICY_NAME_FORMAT = '{bucket_name}-owner-policy'
 
+REQUIRE_HTTPS_CONDITION = {
+    "Bool": {
+        # Require HTTPS
+        "aws:SecureTransport": "true"
+    },
+    "NumericGreaterThanEquals": {
+        # Require TLS >= 1.2
+        "s3:TlsVersion": [
+            "1.2"
+        ]
+    }
+}
+
 
 class BucketCreator:
     def __init__(self, profile_name=None, region_name=None):
@@ -37,8 +50,7 @@ class BucketCreator:
         if data.get('enable_versioning'):
             self.enable_versioning(bucket)
 
-    def get_bucket_policy_statement_for_get_object(self, bucket,
-                                                   public_get_object_paths):
+    def get_bucket_policy_statement_for_get_object(self, bucket, public_get_object_paths):
         """
         Create policy statement to enable the public to perform s3:getObject
         on specified paths.
@@ -60,6 +72,8 @@ class BucketCreator:
                 "Principal": "*",
                 "Action": ["s3:GetObject"],
                 "Resource": paths_resources,
+                # Require HTTPS for public requests
+                "Condition": REQUIRE_HTTPS_CONDITION
             }
 
     def get_bucket_policy_statements_for_user_access(self, bucket, user):
@@ -79,7 +93,9 @@ class BucketCreator:
             ],
             "Resource": "arn:aws:s3:::{bucket_name}".format(
                 bucket_name=bucket.name
-            )
+            ),
+            # Require HTTPS for API
+            "Condition": REQUIRE_HTTPS_CONDITION
         }
         # Create policy statement giving the created user full access over the
         # objects.
@@ -92,7 +108,9 @@ class BucketCreator:
             "Action": "s3:*",
             "Resource": "arn:aws:s3:::{bucket_name}/*".format(
                 bucket_name=bucket.name
-            )
+            ),
+            # Require HTTPS for API
+            "Condition": REQUIRE_HTTPS_CONDITION
         }
 
     def set_bucket_policy(self, bucket, user, allow_public_acls, public_get_object_paths=None):
