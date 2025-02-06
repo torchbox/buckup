@@ -20,8 +20,8 @@ pip install -e .
 First make sure to update the version number in `setup.cfg` and the CHANGELOG. Then,
 
 ```sh
-pip install wheel twine
+pip install wheel twine build
 rm -rf dist/*
-python setup.py sdist bdist_wheel
+python -m build
 twine upload dist/*
 ```
