@@ -1,3 +1,8 @@
+0.2 - 6th January 2025
+======================
+
+* Require HTTPS when connecting to buckets
+
 0.1a7 - 12th July 2023
 =======================
 
