@@ -181,7 +181,7 @@ class BucketCreator:
             )
         )
         print()
-        print("\tAWS_STORAGE_BUCKET_NAME", name)
+        print(f"AWS_STORAGE_BUCKET_NAME='{name}'")
         print()
         bucket.wait_until_exists()
         return bucket
@@ -206,8 +206,8 @@ class BucketCreator:
             )
         )
         print()
-        print("\tAWS_ACCESS_KEY_ID", access_key_pair.access_key_id)
-        print("\tAWS_SECRET_ACCESS_KEY", access_key_pair.secret_access_key)
+        print(f"AWS_ACCESS_KEY_ID='{access_key_pair.access_key_id}'")
+        print(f"AWS_SECRET_ACCESS_KEY='{access_key_pair.secret_access_key}'")
         print()
         return access_key_pair
 
