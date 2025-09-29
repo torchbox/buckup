@@ -52,7 +52,8 @@ class BuckupCommandLineInterface(CommandLineInterface):
                                    | |
                                    |_|
         """)
-        print("Queries: http://github.com/torchbox/buckup\n")
+        print("Version:", __version__)
+        print("Issues: http://github.com/torchbox/buckup\n")
         print(
             "We are going to create an S3 bucket with a user that is ready "
             "to use. In the end\nyou will have a bucket name, access key "
@@ -103,7 +104,6 @@ class BuckupCommandLineInterface(CommandLineInterface):
         if not region:
             print('You need to specify region with "--region".')
             sys.exit(1)
-        print('Use "--profile" flag to use a different boto3 profile.')
         print(
             "Region used is {region}. "
             'Use "--region" to specify a different '
