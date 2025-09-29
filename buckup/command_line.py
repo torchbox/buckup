@@ -241,6 +241,11 @@ class BuckupCommandLineInterface(CommandLineInterface):
         self.print_separator()
         if self.ask_summary():
             self.print_separator()
+            print(
+                "Warning: The following information contains sensitive values. "
+                "Be careful when copying and pasting."
+            )
+            self.print_separator()
             self.create_bucket()
 
 
