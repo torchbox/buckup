@@ -16,17 +16,6 @@ from .exceptions import (
 
 POLICY_NAME_FORMAT = "{bucket_name}-owner-policy"
 
-REQUIRE_HTTPS_CONDITION = {
-    "Bool": {
-        # Require HTTPS
-        "aws:SecureTransport": "true"
-    },
-    "NumericGreaterThanEquals": {
-        # Require TLS >= 1.2
-        "s3:TlsVersion": ["1.2"]
-    },
-}
-
 
 class BucketCreator:
     def __init__(self, profile_name=None, region_name=None):
@@ -77,11 +66,22 @@ class BucketCreator:
                 "Principal": "*",
                 "Action": ["s3:GetObject"],
                 "Resource": paths_resources,
-                # Require HTTPS for public requests
-                "Condition": REQUIRE_HTTPS_CONDITION,
             }
 
     def get_bucket_policy_statements_for_user_access(self, bucket, user):
+        # Deny access which isn't over HTTPS
+        yield {
+            "Sid": "DenyInsecureTransport",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:*",
+            "Resource": [
+                f"arn:aws:s3:::{bucket.name}",
+                f"arn:aws:s3:::{bucket.name}/*",
+            ],
+            "Condition": {"Bool": {"aws:SecureTransport": "false"}},
+        }
+
         # Create policy statement giving the created user access to
         # non-destructive actions on the bucket.
         yield {
@@ -95,8 +95,6 @@ class BucketCreator:
                 "s3:ListBucketVersions",
             ],
             "Resource": "arn:aws:s3:::{bucket_name}".format(bucket_name=bucket.name),
-            # Require HTTPS for API
-            "Condition": REQUIRE_HTTPS_CONDITION,
         }
         # Create policy statement giving the created user full access over the
         # objects.
@@ -106,14 +104,11 @@ class BucketCreator:
             "Principal": {"AWS": user.arn},
             "Action": "s3:*",
             "Resource": "arn:aws:s3:::{bucket_name}/*".format(bucket_name=bucket.name),
-            # Require HTTPS for API
-            "Condition": REQUIRE_HTTPS_CONDITION,
         }
 
     def set_bucket_policy(
         self, bucket, user, allow_public_acls, public_get_object_paths=None
     ):
-        policy_statement = []
         public_access = bool(public_get_object_paths)
 
         # NB: This API doesn't exist on a `Bucket`
@@ -129,15 +124,16 @@ class BucketCreator:
         if public_access or allow_public_acls:
             print("Configured public access to bucket.")
 
+        policy_statement = list(
+            self.get_bucket_policy_statements_for_user_access(bucket, user)
+        )
+
         if public_access:
             policy_statement.append(
                 self.get_bucket_policy_statement_for_get_object(
                     bucket, public_get_object_paths
                 )
             )
-        policy_statement.extend(
-            list(self.get_bucket_policy_statements_for_user_access(bucket, user))
-        )
         policy = json.dumps(
             {
                 "Version": "2012-10-17",
@@ -148,7 +144,7 @@ class BucketCreator:
             try:
                 bucket.Policy().put(Policy=policy)
             except ClientError as e:
-                if e.response["Error"]["Code"] == "MalformedPolicy":
+                if e.response["Error"]["Message"] == "Invalid principal in policy":
                     print(
                         "Waiting for the user to be available to be "
                         "attached to the policy (wait 5s)."
