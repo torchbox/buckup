@@ -1,6 +1,6 @@
 %global srcname buckup
 Name:           %{srcname}
-Version:        0.2
+Version:        0.3
 Summary:        Command line tool to create S3 buckets easily.
 License:        BSD
 URL:            https://github.com/torchbox/buckup

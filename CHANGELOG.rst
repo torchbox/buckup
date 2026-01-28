@@ -1,3 +1,8 @@
+0.3 - 28th January 2026
+=======================
+
+* Fix HTTPS requirement on buckets
+
 0.2 - 6th January 2025
 ======================
 
