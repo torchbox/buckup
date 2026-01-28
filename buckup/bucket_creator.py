@@ -69,20 +69,6 @@ class BucketCreator:
             }
 
     def get_bucket_policy_statements_for_user_access(self, bucket, user):
-        # Deny access using a version of TLS older than 1.2.
-        # This is also enforced by S3, but included here for visibility.
-        yield {
-            "Sid": "DenyOutdatedTLS",
-            "Effect": "Deny",
-            "Principal": "*",
-            "Action": "s3:*",
-            "Resource": [
-                f"arn:aws:s3:::{bucket.name}",
-                f"arn:aws:s3:::{bucket.name}/*",
-            ],
-            "Condition": {"NumericLessThan": {"s3:TlsVersion": "1.2"}},
-        }
-
         # Deny access which isn't over HTTPS
         yield {
             "Sid": "DenyInsecureTransport",
