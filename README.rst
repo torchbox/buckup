@@ -101,6 +101,7 @@ Usage
       * ``s3:PutBucketCORS``
       * ``s3:PutBucketVersioning``
       * ``iam:CreateAccessKey``
+      * ``s3:PutBucketOwnershipControls``
 
 2. After you set that up, you can type ``buckup`` and that should open the
    prompt.
