@@ -121,8 +121,21 @@ class BucketCreator:
                 "RestrictPublicBuckets": not public_access,
             },
         )
-        if public_access or allow_public_acls:
-            print("Configured public access to bucket.")
+
+        # NB: This API doesn't exist on a `Bucket`
+        self.s3_client.put_bucket_ownership_controls(
+            Bucket=bucket.name,
+            OwnershipControls={
+                # "BucketOwnerPreferred" = ACLs enabled. "BucketOwnerEnforced" = ACLs disabled.
+                "Rules": [
+                    {
+                        "ObjectOwnership": "BucketOwnerPreferred"
+                        if allow_public_acls
+                        else "BucketOwnerEnforced"
+                    }
+                ]
+            },
+        )
 
         policy_statement = list(
             self.get_bucket_policy_statements_for_user_access(bucket, user)
