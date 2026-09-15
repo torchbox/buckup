@@ -1,3 +1,8 @@
+0.4 - 15th September 2026
+=========================
+
+* Correctly enable ACLs when requested
+
 0.3 - 28th January 2026
 =======================
 
